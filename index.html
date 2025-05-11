@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnimeTV - O'zbek Anime Jahon</title>
+    <style>
+        * { -webkit-tap-highlight-color: transparent;
+            outline: none; margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
+        body { background: linear-gradient(135deg, #0f0f0f, #1a1a2e); color: #fff; overflow-x: hidden; position: relative; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: rgba(26, 26, 46, 0.9); padding: 15px 30px; position: fixed; width: 100%; top: 0; z-index: 100; backdrop-filter: blur(5px); }
+        .logo { font-size: 30px; font-weight: bold; color: #00d4ff; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px #00d4ff; }
+        .nav-links { list-style: none; display: flex; gap: 25px; align-items: center; }
+        .nav-links li a { color: #e0e0e0; text-decoration: none; font-size: 17px; transition: all 0.3s ease; position: relative; }
+        .nav-links li a:hover { color: #00d4ff; text-shadow: 0 0 15px #00d4ff; }
+        .nav-links li a::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 0; background: #00d4ff; transition: width 0.3s ease; }
+        .nav-links li a:hover::after { width: 100%; }
+        .nav-links .user-info { display: none; font-size: 17px; color: #00ffcc; font-weight: bold; text-shadow: 0 0 5px #00ffcc; }
+        .nav-links .user-info.active { display: inline; }
+        .burger { display: none; cursor: pointer; }
+        .burger div { width: 25px; height: 3px; background: #fff; margin: 5px; transition: all 0.3s; }
+        .hero { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1618477461853-c0c7219a8704'); background-size: cover; background-position: center; padding: 20px; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(0,212,255,0.1) 0%, rgba(0,0,0,0) 70%); animation: rotate 15s linear infinite; }
+        @keyframes rotate { 100% { transform: rotate(1turn); } }
+        .hero h1 { font-size: 60px; margin-bottom: 20px; background: linear-gradient(45deg, #00d4ff, #ff00cc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px #00d4ff; animation: glow 2s ease-in-out infinite; }
+        @keyframes glow { 0% { text-shadow: 0 0 10px #00d4ff; } 50% { text-shadow: 0 0 30px #ff00cc; } 100% { text-shadow: 0 0 10px #00d4ff; } }
+        .hero p { font-size: 22px; margin-bottom: 30px; max-width: 700px; color: #ddd; }
+        .cta-button { padding: 15px 40px; background: linear-gradient(45deg, #00d4ff, #00ffcc); color: #fff; text-decoration: none; border-radius: 50px; font-size: 20px; text-shadow: 0 0 5px #00d4ff; transition: all 0.4s ease; box-shadow: 0 5px 15px rgba(0,212,255,0.3); }
+        .cta-button:hover { transform: scale(1.1); box-shadow: 0 8px 25px rgba(0,212,255,0.5); }
+        .search-bar { margin: 20px auto; max-width: 600px; position: relative; }
+        .search-bar input { width: 100%; padding: 15px 15px 15px 45px; font-size: 18px; border: none; border-radius: 25px; background: rgba(255,255,255,0.1); color: #fff; outline: none; transition: all 0.3s; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        .search-bar input:focus { background: rgba(255,255,255,0.2); box-shadow: 0 0 15px #00d4ff; }
+        .search-bar::before { content: '🔍'; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #bbb; }
+        .anime-section { padding: 100px 20px 50px; text-align: center; }
+        .anime-section h2 { font-size: 40px; margin-bottom: 40px; color: #00ffcc; text-shadow: 0 0 15px #00ffcc; }
+        .anime-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; max-width: 1300px; margin: 0 auto; }
+        .anime-card { background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 15px; overflow: hidden; border: 2px solid #00d4ff; transition: all 0.4s ease; position: relative; }
+        .anime-card:hover { transform: translateY(-15px) rotate(1deg); box-shadow: 0 10px 30px rgba(0,212,255,0.6); }
+        .anime-card img { width: 100%; height: 400px; object-fit: cover; filter: brightness(0.9); transition: filter 0.3s; }
+        .anime-card:hover img { filter: brightness(1.1); }
+        .anime-card-content { padding: 15px; }
+        .anime-card h3 { font-size: 24px; color: #00ffcc; margin-bottom: 10px; text-shadow: 0 0 5px #00ffcc; }
+        .anime-card p { font-size: 16px; color: #bbb; margin-bottom: 15px; }
+        .anime-card .watch-btn { padding: 10px 20px; background: #ff007a; color: #fff; border: none; border-radius: 25px; font-size: 16px; cursor: pointer; transition: all 0.3s; }
+        .anime-card .watch-btn:hover { background: #cc0052; transform: scale(1.05); }
+        .anime-card .delete-btn { display: none; position: absolute; top: 10px; right: 10px; background: #ff4444; color: #fff; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; transition: all 0.3s; }
+        .anime-card .delete-btn.active { display: block; }
+        .anime-card .delete-btn:hover { background: #cc0000; transform: rotate(90deg); }
+        .add-anime-section { padding: 50px 20px; text-align: center; display: none; background: #16213e; }
+        .add-anime-section.active { display: block; }
+        .add-anime-form { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        .add-anime-form input { padding: 15px; font-size: 18px; border: none; border-radius: 25px; background: rgba(255,255,255,0.1); color: #fff; }
+        .add-anime-form input:focus { outline: none; box-shadow: 0 0 10px #00d4ff; }
+        .add-anime-form button { padding: 15px; background: linear-gradient(45deg, #00d4ff, #00ffcc); color: #fff; border: none; border-radius: 25px; font-size: 18px; cursor: pointer; transition: all 0.3s; }
+        .add-anime-form button:hover { transform: scale(1.05); box-shadow: 0 5px 15px #00d4ff; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 40px; border-radius: 20px; max-width: 450px; width: 90%; text-align: center; border: 3px solid #00d4ff; box-shadow: 0 0 20px #00d4ff; animation: slideIn 0.4s ease; }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-content h2 { font-size: 32px; margin-bottom: 25px; color: #00ffcc; text-shadow: 0 0 10px #00ffcc; }
+        .login-form, .register-form { display: flex; flex-direction: column; gap: 20px; }
+        .login-form input, .register-form input { padding: 15px; font-size: 18px; border: none; border-radius: 25px; background: rgba(255,255,255,0.1); color: #fff; }
+        .login-form input:focus, .register-form input:focus { outline: none; box-shadow: 0 0 10px #00d4ff; }
+        .login-form button, .register-form button { padding: 15px; background: linear-gradient(45deg, #00d4ff, #ff007a); color: #fff; border: none; border-radius: 25px; font-size: 18px; cursor: pointer; transition: all 0.3s; }
+        .login-form button:hover, .register-form button:hover { transform: scale(1.05); box-shadow: 0 5px 15px #00d4ff; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 28px; color: #fff; cursor: pointer; transition: all 0.3s; }
+        .close-modal:hover { color: #00ffcc; transform: rotate(180deg); }
+        .about-section { padding: 80px 20px; text-align: center; background: #16213e; }
+        .about-section h2 { font-size: 40px; margin-bottom: 20px; color: #00ffcc; text-shadow: 0 0 15px #00ffcc; }
+        .about-section p { font-size: 20px; max-width: 900px; margin: 0 auto; color: #ddd; }
+        footer { background: rgba(26, 26, 46, 0.9); padding: 20px; text-align: center; color: #bbb; border-top: 1px solid #333; backdrop-filter: blur(5px); }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #00d4ff; color: #fff; padding: 15px 30px; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,212,255,0.5); opacity: 0; transition: opacity 0.3s ease; z-index: 1000; }
+        .toast.show { opacity: 1; }
+        @media (max-width: 768px) {
+            .nav-links { display: none; flex-direction: column; position: absolute; top: 70px; left: 0; width: 100%; background: rgba(26, 26, 46, 0.95); padding: 20px 0; }
+            .nav-links.active { display: flex; }
+            .burger { display: block; }
+            .hero h1 { font-size: 40px; }
+            .anime-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+            .anime-card img { height: 300px; }
+            .modal-content { width: 95%; }
+            .search-bar { max-width: 90%; }
+            .search-bar input { padding: 12px 12px 12px 40px; font-size: 16px; }
+            .search-bar::before { font-size: 18px; left: 12px; }
+        }
+        @media (max-width: 480px) {
+            .logo { font-size: 24px; }
+            .hero h1 { font-size: 30px; }
+            .hero p { font-size: 16px; }
+            .search-bar input { font-size: 14px; padding: 10px 10px 10px 35px; }
+            .search-bar::before { font-size: 16px; left: 10px; }
+            .anime-card img { height: 200px; }
+            .anime-card h3 { font-size: 20px; }
+            .anime-section h2 { font-size: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">AnimeTV</div>
+        <ul class="nav-links">
+            <li><a href="#home">Bosh Sahifa</a></li>
+            <li><a href="#anime-list">Anime Ro'yxati</a></li>
+            <li><a href="#about">Biz Haqimizda</a></li>
+            <li><a href="#" id="login-btn">Kirish</a></li>
+            <li><a href="#" id="register-btn">Ro‘yxatdan o‘tish</a></li>
+            <li class="user-info" id="user-info"></li>
+            <li><a href="#" id="logout-btn" style="display: none;">Chiqish</a></li>
+        </ul>
+        <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+    </nav>
+
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal">×</span>
+            <h2>Kirish</h2>
+            <form class="login-form" id="login-form">
+                <input type="text" placeholder="Foydalanuvchi nomi" id="login-username" required>
+                <input type="password" placeholder="Parol" id="login-password" required>
+                <button type="submit">Kirish</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="register-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-register-modal">×</span>
+            <h2>Ro‘yxatdan o‘tish</h2>
+            <form class="register-form" id="register-form">
+                <input type="text" placeholder="Foydalanuvchi nomi" id="register-username" required>
+                <input type="password" placeholder="Parol" id="register-password" required>
+                <input type="email" placeholder="Email" id="register-email" required>
+                <button type="submit">Ro‘yxatdan o‘tish</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <section id="home" class="hero">
+        <h1>AnimeTV - Anime Olami</h1>
+        <p>O'zbekcha dublyaj bilan eng zo'r anime tajribasini kashf eting!</p>
+        <a href="#anime-list" class="cta-button" id="scroll-to-anime">Anime Ko'rish</a>
+    </section>
+
+    <section class="search-bar">
+        <input type="text" id="search-input" placeholder="Anime qidiring..." autocomplete="off">
+    </section>
+
+    <section class="add-anime-section" id="add-anime-section">
+        <h2>Yangi Anime Qo'shish</h2>
+        <form class="add-anime-form" id="add-anime-form">
+            <input type="text" placeholder="Anime Nomi" id="anime-title" required>
+            <input type="text" placeholder="Ta'rif" id="anime-description" required>
+            <input type="text" placeholder="Rasm URL" id="anime-image" required>
+            <button type="submit">Qo‘shish</button>
+        </form>
+    </section>
+
+    <section id="anime-list" class="anime-section">
+        <h2>Eng Mashhur Animelar</h2>
+        <div class="anime-grid" id="anime-grid"></div>
+    </section>
+
+    <section id="about" class="about-section">
+        <h2>Biz Haqimizda</h2>
+        <p>AnimeTV - bu O'zbekistondagi anime muxlislari uchun maxsus yaratilgan platforma. Biz sifatli dublyaj va original kontent bilan xizmat qilamiz. Qo'shilish uchun hozir ro'yxatdan o'ting!</p>
+    </section>
+
+    <footer>
+        <p>© 2025 AnimeTV | Barcha huquqlar himoyalangan | <a href="#contact" style="color: #00d4ff;">Aloqa</a></p>
+    </footer>
+
+    <script>
+        const apiUrl = 'http://localhost:3000/api';
+        const toast = document.getElementById('toast');
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        const loadAnimeList = async (searchQuery = '') => {
+            try {
+                const response = await fetch(`${apiUrl}/anime`);
+                if (!response.ok) throw new Error('Serverdan javob yo‘q');
+                const animeList = await response.json();
+                const filteredList = animeList.filter(anime =>
+                    anime.title.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+                const animeGrid = document.getElementById('anime-grid');
+                animeGrid.innerHTML = '';
+                filteredList.forEach((anime) => {
+                    const animeCard = document.createElement('div');
+                    animeCard.classList.add('anime-card');
+                    animeCard.innerHTML = `
+                        <img src="${anime.image}" alt="${anime.title}" onerror="this.src='https://via.placeholder.com/300x400?text=Rasm+Yuklanmadi';">
+                        <div class="anime-card-content">
+                            <h3>${anime.title}</h3>
+                            <p>${anime.description}</p>
+                            <button class="watch-btn">Ko‘rish</button>
+                            <button class="delete-btn" data-id="${anime.id}">O'chirish</button>
+                        </div>
+                    `;
+                    animeGrid.appendChild(animeCard);
+                });
+                updateButtons();
+            } catch (error) {
+                console.error('Anime yuklashda xato:', error);
+                showToast('Anime ro‘yxatini yuklashda xato!');
+            }
+        };
+
+        const updateButtons = () => {
+            const watchButtons = document.querySelectorAll('.watch-btn');
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+            const isAdmin = localStorage.getItem('username') === 'admin';
+
+            watchButtons.forEach(btn => {
+                btn.addEventListener('click', () => showToast(`"${btn.parentElement.querySelector('h3').textContent}" ni ko‘rish uchun link hozircha yo‘q!`));
+            });
+
+            deleteButtons.forEach(btn => {
+                if (isAdmin) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    try {
+                        await fetch(`${apiUrl}/anime/${id}`, { method: 'DELETE' });
+                        loadAnimeList(document.getElementById('search-input').value);
+                        showToast('Anime o‘chirildi!');
+                    } catch (error) {
+                        showToast('O‘chirishda xato!');
+                    }
+                });
+            });
+        };
+
+        const checkUser = () => {
+            const username = localStorage.getItem('username');
+            const token = localStorage.getItem('token');
+            const addAnimeSection = document.getElementById('add-anime-section');
+            const userInfo = document.getElementById('user-info');
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            if (username && token) {
+                userInfo.textContent = `Xush kelibsiz, ${username}!`;
+                userInfo.classList.add('active');
+                loginBtn.style.display = 'none';
+                registerBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline';
+                if (username === 'admin') {
+                    addAnimeSection.classList.add('active');
+                } else {
+                    addAnimeSection.classList.remove('active');
+                }
+            } else {
+                userInfo.classList.remove('active');
+                loginBtn.style.display = 'inline';
+                registerBtn.style.display = 'inline';
+                logoutBtn.style.display = 'none';
+                addAnimeSection.classList.remove('active');
+            }
+            updateButtons();
+        };
+
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const loginModal = document.getElementById('login-modal');
+        const registerModal = document.getElementById('register-modal');
+        const closeModal = document.getElementById('close-modal');
+        const closeRegisterModal = document.getElementById('close-register-modal');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const searchInput = document.getElementById('search-input');
+        const scrollToAnime = document.getElementById('scroll-to-anime');
+
+        loginBtn.addEventListener('click', () => loginModal.classList.add('active'));
+        registerBtn.addEventListener('click', () => registerModal.classList.add('active'));
+        closeModal.addEventListener('click', () => loginModal.classList.remove('active'));
+        closeRegisterModal.addEventListener('click', () => registerModal.classList.remove('active'));
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            try {
+                const response = await fetch(`${apiUrl}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('token', data.token);
+                    loginModal.classList.remove('active');
+                    checkUser();
+                    loadAnimeList();
+                    showToast(`Xush kelibsiz, ${username}!`);
+                    loginForm.reset();
+                } else {
+                    showToast(data.message);
+                }
+            } catch (error) {
+                showToast('Server bilan aloqa yo‘q!');
+            }
+        });
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            const email = document.getElementById('register-email').value;
+            try {
+                const response = await fetch(`${apiUrl}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, email })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('token', data.token);
+                    registerModal.classList.remove('active');
+                    checkUser();
+                    loadAnimeList();
+                    showToast(`Ro‘yxatdan o‘tish muvaffaqiyatli, ${username}!`);
+                    registerForm.reset();
+                } else {
+                    showToast(data.message);
+                }
+            } catch (error) {
+                showToast('Server bilan aloqa yo‘q!');
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('username');
+            localStorage.removeItem('token');
+            checkUser();
+            loadAnimeList();
+            showToast('Siz chiqdingiz!');
+        });
+
+        const addAnimeForm = document.getElementById('add-anime-form');
+        addAnimeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('anime-title').value;
+            const description = document.getElementById('anime-description').value;
+            let image = document.getElementById('anime-image').value;
+
+            // Agar rasm URL'si bo'sh bo'lsa yoki noto'g'ri bo'lsa, placeholder qo'yamiz
+            if (!image || !image.startsWith('http')) {
+                image = 'https://via.placeholder.com/300x400?text=Rasm+Yuklanmadi';
+            }
+
+            try {
+                await fetch(`${apiUrl}/anime`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description, image })
+                });
+                loadAnimeList(searchInput.value);
+                addAnimeForm.reset();
+                showToast('Anime qo‘shildi!');
+            } catch (error) {
+                showToast('Qo‘shishda xato!');
+            }
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            loadAnimeList(e.target.value);
+        });
+
+        const burger = document.querySelector('.burger');
+        const navLinks = document.querySelector('.nav-links');
+        burger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            burger.classList.toggle('toggle');
+        });
+
+        scrollToAnime.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelector('#anime-list').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        checkUser();
+        loadAnimeList();
+    </script>
+</body>
+</html>
